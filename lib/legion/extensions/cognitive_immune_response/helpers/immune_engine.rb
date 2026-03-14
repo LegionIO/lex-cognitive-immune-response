@@ -45,10 +45,9 @@ module Legion
           end
 
           def vaccinate(antigen_type:, signature:)
-            antibody = create_antibody(
+            create_antibody(
               antigen_type: antigen_type, signature: signature, immunity_level: 0.6
             )
-            antibody
           end
 
           def decay_all!
@@ -79,25 +78,11 @@ module Legion
             matching.map(&:immunity_level).max.round(10)
           end
 
-          def critical_antigens
-            @antigens.values.select(&:critical?)
-          end
-
-          def benign_antigens
-            @antigens.values.select(&:benign?)
-          end
-
-          def memory_cells
-            @antibodies.values.select(&:memory_cell?)
-          end
-
-          def effective_antibodies
-            @antibodies.values.select(&:effective?)
-          end
-
-          def responses_for(antigen_id:)
-            @responses.values.select { |r| r.antigen_id == antigen_id }
-          end
+          def critical_antigens = @antigens.values.select(&:critical?)
+          def benign_antigens = @antigens.values.select(&:benign?)
+          def memory_cells = @antibodies.values.select(&:memory_cell?)
+          def effective_antibodies = @antibodies.values.select(&:effective?)
+          def responses_for(antigen_id:) = @responses.values.select { |r| r.antigen_id == antigen_id }
 
           def threat_by_type
             ANTIGEN_TYPES.each_with_object({}) do |type, hash|
@@ -119,29 +104,21 @@ module Legion
 
           def immune_report
             {
-              total_antigens:       @antigens.size,
-              total_antibodies:     @antibodies.size,
-              total_responses:      @responses.size,
-              critical_count:       critical_antigens.size,
-              memory_cell_count:    memory_cells.size,
-              overall_health:       overall_immune_health,
-              health_label:         Constants.label_for(HEALTH_LABELS, overall_immune_health),
-              threat_by_type:       threat_by_type,
-              most_exposed:         most_exposed(limit: 3).map(&:to_h)
+              total_antigens:    @antigens.size,
+              total_antibodies:  @antibodies.size,
+              total_responses:   @responses.size,
+              critical_count:    critical_antigens.size,
+              memory_cell_count: memory_cells.size,
+              overall_health:    overall_immune_health,
+              health_label:      Constants.label_for(HEALTH_LABELS, overall_immune_health),
+              threat_by_type:    threat_by_type,
+              most_exposed:      most_exposed(limit: 3).map(&:to_h)
             }
           end
 
-          def most_exposed(limit: 5)
-            @antigens.values.sort_by { |a| -a.exposure_count }.first(limit)
-          end
-
-          def most_threatening(limit: 5)
-            @antigens.values.sort_by { |a| -a.threat_level }.first(limit)
-          end
-
-          def strongest_antibodies(limit: 5)
-            @antibodies.values.sort_by { |ab| -ab.immunity_level }.first(limit)
-          end
+          def most_exposed(limit: 5) = @antigens.values.sort_by { |a| -a.exposure_count }.first(limit)
+          def most_threatening(limit: 5) = @antigens.values.sort_by { |a| -a.threat_level }.first(limit)
+          def strongest_antibodies(limit: 5) = @antibodies.values.sort_by { |ab| -ab.immunity_level }.first(limit)
 
           def to_h
             {
@@ -155,8 +132,7 @@ module Legion
           private
 
           def find_matching_antibody(antigen)
-            @antibodies.values.select { |ab| ab.matches?(antigen) }
-                       .max_by(&:immunity_level)
+            @antibodies.values.select { |ab| ab.matches?(antigen) }.max_by(&:immunity_level)
           end
 
           def generate_response(antigen, antibody)
@@ -170,14 +146,12 @@ module Legion
 
           def compute_intensity(antigen, antibody)
             base = antigen.threat_level
-            base *= (1.0 - antibody.immunity_level * 0.5) if antibody
+            base *= (1.0 - (antibody.immunity_level * 0.5)) if antibody
             base = [base, 0.8].min if antigen.recurring? && antibody&.memory_cell?
             base.clamp(0.0, 1.0).round(10)
           end
 
-          def determine_response_level(intensity)
-            Constants.label_for(RESPONSE_LABELS, intensity) || :monitoring
-          end
+          def determine_response_level(intensity) = Constants.label_for(RESPONSE_LABELS, intensity) || :monitoring
 
           def prune_antigens
             return if @antigens.size < MAX_ANTIGENS

@@ -181,7 +181,7 @@ RSpec.describe Legion::Extensions::CognitiveImmuneResponse::Helpers::ImmuneEngin
       a1 = engine.register_antigen(pattern: 'a', antigen_type: :prompt_injection)
       a2 = engine.register_antigen(pattern: 'b', antigen_type: :data_poisoning)
       3.times { engine.encounter(antigen_id: a1.id) }
-      1.times { engine.encounter(antigen_id: a2.id) }
+      engine.encounter(antigen_id: a2.id)
       expect(engine.most_exposed(limit: 1).first.id).to eq(a1.id)
     end
   end

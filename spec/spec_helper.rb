@@ -2,14 +2,16 @@
 
 require 'legion/extensions/cognitive_immune_response'
 
-module Legion
-  module Extensions
-    module Helpers
-      module Lex
+unless defined?(Legion::Extensions::Helpers::Lex)
+  module Legion
+    module Extensions
+      module Helpers
+        module Lex
+        end
       end
     end
   end
-end unless defined?(Legion::Extensions::Helpers::Lex)
+end
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

@@ -12,7 +12,7 @@ module Legion
           attr_reader :id, :antigen_id, :antibody_id, :response_level,
                       :intensity, :action_taken, :created_at
 
-          def initialize(antigen_id:, antibody_id: nil, response_level:, intensity: 0.5)
+          def initialize(antigen_id:, response_level:, antibody_id: nil, intensity: 0.5)
             @id             = SecureRandom.uuid
             @antigen_id     = antigen_id
             @antibody_id    = antibody_id
